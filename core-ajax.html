@@ -281,7 +281,7 @@ element.
       go: function() {
         var args = this.xhrArgs || {};
         // TODO(sjmiles): alternatively, we could force POST if body is set
-        if (this.method === 'POST') {
+        if (/^(POST|PUT|DELETE)$/.test(this.method)) {
           args.body = this.body || args.body;
         }
         args.params = this.params || args.params;
