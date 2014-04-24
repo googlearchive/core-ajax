@@ -98,7 +98,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         this.makeReadyStateHandler(xhr, options.callback);
         this.setRequestHeaders(xhr, options.headers);
-        xhr.send(method == 'POST' ? (options.body || params) : null);
+        var bodyAllowed = /^(POST|PUT|DELETE)$/.test(method);
+        xhr.send(bodyAllowed ? (options.body || params) : null);
         if (!async) {
           xhr.onreadystatechange(xhr);
         }
