@@ -32,7 +32,7 @@ element.
 @homepage github.io
 -->
 <link rel="import" href="core-xhr.html">
-<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response method headers body contentType withCredentials">
+<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response method headers body autoBody contentType withCredentials">
 <script>
 
   Polymer('core-ajax', {
@@ -158,6 +158,15 @@ element.
     body: null,
 
     /**
+     * If true and auto === true, automatically performs an Ajax request when `body` changes.
+     *
+     * @attribute autoBody
+     * @type boolean
+     * @default false
+     */
+    autoBody: false,
+
+    /**
      * Content type to use when sending data.
      *
      * @attribute contentType
@@ -276,6 +285,12 @@ element.
     autoChanged: function() {
       this.autoGo();
     },
+
+    bodyChanged: function() {
+      if (this.autoBody && this.method === 'POST') {
+        this.autoGo();
+      }
+    }
 
     // TODO(sorvell): multiple side-effects could call autoGo 
     // during one micro-task, use a job to have only one action 
