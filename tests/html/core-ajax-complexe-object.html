@@ -21,38 +21,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body>
 
   <core-ajax
-    id="simple"
+    id="multi-level"
     url="http://gdata.youtube.com/feeds/api/videos/"
-    params='{"alt":"json", "q":"chrome"}'
+    params='{"alt":"json","key1": {"key21":{"key211":"value211"}}}'
     handleAs="json"
     auto>
   </core-ajax>
-<!--
-  <core-ajax
-    id="arrays"
-    url="http://gdata.youtube.com/feeds/api/videos/"
-    params='{"key1": ["a","b","c"]}'
-    handleAs="json"
-    auto>
-  </core-ajax> -->
-
   <script>
 
     document.addEventListener('polymer-ready', function() {
-      var assert = chai.assert;
-      var simpleAjax = document.querySelector('core-ajax#simple');
-      simpleAjax.addEventListener("core-response", function(event) {
-        chai.assert.isTrue(event.detail.response.feed.entry.length > 0);
+
+      var multiLevelAjax = document.querySelector('core-ajax#multi-level');
+      multiLevelAjax.addEventListener("core-response", function(event) {
+        chai.assert.equal(event.detail.xhr.responseURL, "http://gdata.youtube.com/feeds/api/videos/?alt=json&key1=" + encodeURIComponent(JSON.stringify({"key21":{"key211":"value211"}})));
         done();
       });
-
-
-      // var arraysAjax = document.querySelector('core-ajax#arrays');
-      // arraysAjax.addEventListener("core-response", function(event) {
-      //   assert.isTrue(event.detail.response.feed.entry.length > 0);
-      //   done();
-      // });
-
     });
 
   </script>
