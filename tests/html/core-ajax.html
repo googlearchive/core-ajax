@@ -9,34 +9,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <html>
 <head>
-
   <title>core-ajax</title>
 
-  <script src="../webcomponentsjs/webcomponents.js"></script>
-  <link rel="import" href="core-ajax.html">
+  <script src="../../../webcomponentsjs/webcomponents.js"></script>
+  <script src="../../../polymer-test-tools/chai/chai.js"></script>
+  <script src="../../../polymer-test-tools/htmltest.js"></script>
+
+  <link rel="import" href="../../core-ajax.html">
 
 </head>
 <body>
 
-  <core-ajax auto url="//gdata.youtube.com/feeds/api/videos/" 
-      params='{"alt":"json", "q":"chrome"}'
-      handleAs="json"></core-ajax>
-   
-  <template repeat="{{response.feed.entry}}">
-    <div>{{title.$t}}</div>
-  </template>
-  
+  <core-ajax
+    url="http://gdata.youtube.com/feeds/api/videos/"
+    params='{"alt":"json", "q":"chrome"}'
+    handleAs="json"
+    auto></core-ajax>
+
   <script>
+
     document.addEventListener('polymer-ready', function() {
-      var ajax = document.querySelector("core-ajax");
-      ajax.addEventListener("core-response", 
-        function(e) {
-          document.querySelector('template').model = {
-            response: e.detail.response
-          };
-        }
-      );
+      var assert = chai.assert;
+      var ajax = document.querySelector('core-ajax');
+      ajax.addEventListener("core-response", function(event) {
+        assert.isTrue(event.detail.response.feed.entry.length > 0);
+        done();
+      });
     });
+
   </script>
 
 </body>
