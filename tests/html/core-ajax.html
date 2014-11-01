@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
   <title>core-ajax</title>
 
-  <script src="../../../webcomponentsjs/webcomponents.js"></script>
+  <script src="../../../webcomponents.js/webcomponents.js"></script>
   <script src="../../../polymer-test-tools/chai/chai.js"></script>
   <script src="../../../polymer-test-tools/htmltest.js"></script>
 
@@ -21,8 +21,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body>
 
   <core-ajax
+    id="simple"
     url="http://gdata.youtube.com/feeds/api/videos/"
     params='{"alt":"json", "q":"chrome"}'
+    handleAs="json"
+    auto></core-ajax>
+
+  <core-ajax
+    id="array-params"
+    url="http://gdata.youtube.com/feeds/api/videos/"
+    params='{"alt":"json", "q":"chrome", "keywords":["chrome", "browser"]}'
     handleAs="json"
     auto></core-ajax>
 
@@ -30,9 +38,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     document.addEventListener('polymer-ready', function() {
       var assert = chai.assert;
-      var ajax = document.querySelector('core-ajax');
+      var ajax = document.querySelector('#simple');
       ajax.addEventListener("core-response", function(event) {
         assert.isTrue(event.detail.response.feed.entry.length > 0);
+        done();
+      });
+
+      var arrayParamAjax = document.querySelector('#array-params');
+      arrayParamAjax.addEventListener("core-complete", function(event) {
+        assert.isTrue(/[?&]keywords=browser/.test(event.detail.xhr.responseURL));
+        assert.isTrue(/[?&]keywords=chrome/.test(event.detail.xhr.responseURL));
         done();
       });
     });
