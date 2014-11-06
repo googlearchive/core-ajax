@@ -10,33 +10,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <title>core-ajax</title>
-
   <script src="../../webcomponentsjs/webcomponents.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
   <link rel="import" href="../core-ajax.html">
-
 </head>
 <body>
 
-  <core-ajax
-    url="http://gdata.youtube.com/feeds/api/videos/"
-    params='{"alt":"json", "q":"chrome", "keywords":["chrome", "browser"]}'
-    handleAs="json"
-    auto></core-ajax>
+  <core-ajax></core-ajax>
 
   <script>
-    var xhr = sinon.useFakeXMLHttpRequest();
-    var ajax = document.querySelector("core-ajax");
-    var requests = []
-    xhr.onCreate = function(xhr) {
-      requests.push(xhr);
+  suite('multivalue', function(){
+    var animationFrameFlush = function(callback) {
+      flush(function(){
+        requestAnimationFrame(function(){
+          flush(callback);
+        });
+      });
     };
-
+    var ajax, requests, xhr;
+    suiteSetup(function(done){
+      ajax = document.querySelector("core-ajax");
+      requests = []
+      xhr = sinon.useFakeXMLHttpRequest();
+      xhr.onCreate = function(xhr) {
+        requests.push(xhr);
+      };
+      async.series([
+          function(cb){
+            ajax.url="http://gdata.youtube.com/feeds/api/videos/";
+            ajax.params='{"alt":"json", "q":"chrome", "keywords":["chrome", "browser"]}';
+            ajax.handleAs="json";
+            ajax.auto=true;
+            cb();
+          },
+          animationFrameFlush
+        ], done);
+    });
+    
     test('Array valued parameters should be properly encoded', function(done) {
       var req = requests[0];
       assert.match(req.url, /[?&]keywords=chrome/);
       assert.match(req.url, /[?&]keywords=browser/);
+      done();
     });
+  });
 </script>
 </body>
 </html>
