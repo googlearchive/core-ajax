@@ -34,8 +34,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     test('Array valued parameters should be properly encoded', function(done) {
       var req = requests[0];
-      assert.match(req.url, /[?&]keywords=browser/);
       assert.match(req.url, /[?&]keywords=chrome/);
+      assert.match(req.url, /[?&]keywords=browser/);
     });
 </script>
 </body>
