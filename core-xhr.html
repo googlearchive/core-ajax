@@ -77,7 +77,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         for (var n in params) {
           var v = params[n];
           n = encodeURIComponent(n);
-          r.push(v == null ? n : (n + '=' + encodeURIComponent(v)));
+          if (Array.isArray(v)) {
+            v.forEach(function(val) {
+              r.push(val == null ? n : (n + '=' + encodeURIComponent(val)));
+            });
+          } else {
+            r.push(v == null ? n : (n + '=' + encodeURIComponent(v)));
+          }
         }
         return r.join('&');
       },
