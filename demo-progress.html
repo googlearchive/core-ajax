@@ -52,7 +52,6 @@
           return JSON.stringify(i, null, 2);
         },
         restart: function() {
-          this.$.ajax.abort();
           this.$.ajax.go();
         }
       });
