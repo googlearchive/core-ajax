@@ -27,12 +27,12 @@
         https://github.com/kennethreitz/httpbin/pull/160
        -->
       <div>
-        <button on-click="{{restart}}">Restart</button>
         <template if="{{loading}}">
           Loading...
         </template>
         <template if="{{!loading}}">
           Loaded!
+          <button on-click="{{restart}}">Restart</button>
         </template>
       </div>
       <template if="{{loading && progress.loaded}}">
@@ -52,7 +52,6 @@
           return JSON.stringify(i, null, 2);
         },
         restart: function() {
-          this.$.ajax.abort();
           this.$.ajax.go();
         }
       });
