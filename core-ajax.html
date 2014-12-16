@@ -17,7 +17,8 @@ The `core-ajax` element exposes `XMLHttpRequest` functionality.
         url="http://gdata.youtube.com/feeds/api/videos/"
         params='{"alt":"json", "q":"chrome"}'
         handleAs="json"
-        on-core-response="{{handleResponse}}"></core-ajax>
+        on-core-response="{{handleResponse}}"
+        poll="3000"></core-ajax>
 
 With `auto` set to `true`, the element performs a request whenever
 its `url`, `params` or `body` properties are changed.
@@ -27,12 +28,15 @@ Note: The `params` attribute must be double quoted JSON.
 You can trigger a request explicitly by calling `go` on the
 element.
 
+Poll allows for repeated requests - the value is milliseconds to wait
+after receiving a response before repeating the request.
+
 @element core-ajax
 @status beta
 @homepage github.io
 -->
 <link rel="import" href="core-xhr.html">
-<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials progress loading">
+<polymer-element name="core-ajax" hidden attributes="url handleAs auto poll params response error method headers body contentType withCredentials progress loading">
 <script>
 
   Polymer('core-ajax', {
@@ -95,6 +99,15 @@ element.
      * @default false
      */
     auto: false,
+
+    /**
+     * If set, specifies a poll interval.
+     *
+     * @attribute poll
+     * @type {Number} number of milliseconds
+     * @default null
+     */
+    poll: null,
 
     /**
      * Parameters to send to the specified URL, as JSON.
@@ -276,6 +289,10 @@ element.
         this.loading = false;
       }
       this.fire('core-complete', {response: xhr.status, xhr: xhr});
+
+      if (this.poll && this.isSuccess(xhr)) {
+        this.pollJob = this.job(this.goJob, this.go, this.poll);
+      }
     },
 
     evalResponse: function(xhr) {
@@ -346,6 +363,8 @@ element.
         this.goJob = this.job(this.goJob, this.go, 0);
       }
     },
+
+    pollJob: null,
 
     /**
      * Performs an Ajax request to the specified URL.
