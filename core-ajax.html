@@ -32,7 +32,7 @@ element.
 @homepage github.io
 -->
 <link rel="import" href="core-xhr.html">
-<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials progress loading">
+<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body bodyType contentType withCredentials progress loading">
 <script>
 
   Polymer('core-ajax', {
@@ -185,6 +185,23 @@ element.
      * @default null
      */
     body: null,
+
+      /**
+       * Optional raw body Type content to send when method === "POST".
+       *
+       * Possible value are 'text', 'json'
+       *
+       * Example:
+       *
+       *     <core-ajax method="POST" auto url="http://somesite.com"
+       *         body='{{jsonObj}}' bodyType='json'>
+       *     </core-ajax>
+       *
+       * @attribute bodyType
+       * @type String
+       * @default text
+       */
+    bodyType: 'text',
 
     /**
      * Content type to use when sending data.
@@ -347,6 +364,20 @@ element.
       }
     },
 
+    getParsedBody: function () {
+        var parsedBody = this.body;
+        // stringify body
+        switch(this.bodyType) {
+            case 'text' :
+                // Do nothing, just send the value
+                break;
+            case 'json' :
+                parsedBody = JSON.stringify(parsedBody);
+                break;
+        }
+        return parsedBody;
+    },
+
     /**
      * Performs an Ajax request to the specified URL.
      *
@@ -355,7 +386,7 @@ element.
     go: function() {
       var args = this.xhrArgs || {};
       // TODO(sjmiles): we may want XHR to default to POST if body is set
-      args.body = this.body || args.body;
+      args.body = this.getParsedBody() || args.body;
       args.params = this.params || args.params;
       if (args.params && typeof(args.params) == 'string') {
         args.params = JSON.parse(args.params);
