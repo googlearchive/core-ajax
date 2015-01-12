@@ -248,9 +248,14 @@ element.
     },
 
     processError: function(xhr) {
-      var response = xhr.status + ': ' + xhr.responseText;
-      if (xhr === this.activeRequest) {
-        this.error = response;
+      var response = '';
+      if (xhr.status) {
+        var response = xhr.status + ': ' + xhr.responseText;
+        if (xhr === this.activeRequest) {
+          this.error = response;
+        }
+      } else {
+        var response = 'Connection failed'
       }
       this.fire('core-error', {response: response, xhr: xhr});
     },
