@@ -316,6 +316,37 @@ element.
       return xhr.response;
     },
 
+    autoHandler: function(xhr) {
+      var type = xhr.getResponseHeader("Content-Type");
+      if (type == null) {
+        return this.textHandler(xhr);
+      }
+      var delim = type.indexOf(";");
+      if (delim > -1) {
+        type = type.slice(0, delim);
+      }
+      switch (type) {
+        case 'text/json':
+        case 'application/json':
+          return this.jsonHandler(xhr);
+        case 'text/xml':
+        case 'application/xml':
+          return this.xmlHandler(xhr);
+        case 'application/octet-stream':
+          return this.blobHandler(xhr);
+        default:
+          var seg = type.indexOf("/");
+          if (seg == -1) {
+            break;
+          }
+          type = type.slice(0, seg);
+          if (type == 'text') {
+            return this.textHandler(xhr);
+          }
+      }
+      return this.documentHandler(xhr);
+    },
+
     urlChanged: function() {
       if (!this.handleAs) {
         var ext = String(this.url).split('.').pop();
