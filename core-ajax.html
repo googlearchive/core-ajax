@@ -248,7 +248,10 @@ element.
     },
 
     processError: function(xhr) {
-      var response = xhr.status + ': ' + xhr.responseText;
+      var response = xhr.status;
+      if (response.responseType === '' || response.responseType === 'text') {
+        response += ': ' + xhr.responseText;
+      }
       if (xhr === this.activeRequest) {
         this.error = response;
       }
