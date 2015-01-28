@@ -248,7 +248,7 @@ element.
     },
 
     processError: function(xhr) {
-      var response = xhr.status + ': ' + xhr.responseText;
+      var response = this.evalResponse(xhr);
       if (xhr === this.activeRequest) {
         this.error = response;
       }
