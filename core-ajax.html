@@ -249,10 +249,14 @@ element.
 
     processError: function(xhr) {
       var response = this.evalResponse(xhr);
+      var error = {
+        statusCode: xhr.status,
+        response: response
+      };
       if (xhr === this.activeRequest) {
-        this.error = response;
+        this.error = error;
       }
-      this.fire('core-error', {response: response, xhr: xhr});
+      this.fire('core-error', {response: error, xhr: xhr});
     },
 
     processProgress: function(progress, xhr) {
