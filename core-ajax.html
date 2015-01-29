@@ -317,30 +317,27 @@ element.
     },
 
     autoHandler: function(xhr) {
-      var type = xhr.getResponseHeader("Content-Type");
-      if (type == null) {
+      var value = String(xhr.getResponseHeader("Content-Type")).toLowerCase();
+      if (value == null) {
         return this.textHandler(xhr);
       }
-      var delim = type.indexOf(";");
+      var delim = value.indexOf(";");
       if (delim > -1) {
-        type = type.slice(0, delim);
+        value = value.slice(0, delim);
       }
-      switch (type) {
-        case 'text/json':
-        case 'application/json':
+      var types = value.split('/');
+      if (types.length != 2) {
+        return this.textHandler(xhr);
+      }
+      switch (types[1]) {
+        case 'json':
           return this.jsonHandler(xhr);
-        case 'text/xml':
-        case 'application/xml':
+        case 'xml':
           return this.xmlHandler(xhr);
-        case 'application/octet-stream':
+        case 'octet-stream':
           return this.blobHandler(xhr);
         default:
-          var seg = type.indexOf("/");
-          if (seg == -1) {
-            break;
-          }
-          type = type.slice(0, seg);
-          if (type == 'text') {
+          if (types[0] == 'text') {
             return this.textHandler(xhr);
           }
       }
