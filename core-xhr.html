@@ -71,21 +71,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         return xhr;
       },
-    
+
       toQueryString: function(params) {
-        var r = [];
-        for (var n in params) {
-          var v = params[n];
-          n = encodeURIComponent(n);
-          r.push(v == null ? n : (n + '=' + encodeURIComponent(v)));
-        }
+        var r = this.encodeObject(params, '');
         return r.join('&');
+      },
+
+      encodeKeyValuePair : function(n, v){
+        return v == null ? n : (n + '=' + encodeURIComponent(v));
+      },
+
+      encodeObject : function(obj, prefix){
+        var r = [];
+        prefix = prefix || '';
+        for (var n in obj) {
+          var v = obj[n];
+          if(typeof v === 'object') {
+            n = prefix + encodeURIComponent('[' + n + ']');
+            r = r.concat(this.encodeObject(v, n));
+          } else {
+            n = prefix + encodeURIComponent(prefix ? '[' + n + ']' : n);
+            r.push(this.encodeKeyValuePair(n, v));
+          }
+        }
+        return r;
       },
 
       isBodyMethod: function(method) {
         return this.bodyMethods[(method || '').toUpperCase()];
       },
-      
+
       bodyMethods: {
         POST: 1,
         PUT: 1,
@@ -112,5 +127,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
   </script>
-  
+
 </polymer-element>
