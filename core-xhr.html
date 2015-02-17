@@ -56,6 +56,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         var xhrParams = this.isBodyMethod(method) ? (options.body || params) : null;
         //
+
+        if (options.onProgress) {
+          if ('onprogress' in xhr) {
+            xhr.addEventListener('progress', function (progress) {
+              options.onProgress(progress, xhr);
+            }, false);
+            xhr.upload.addEventListener('progress', function (progress) {
+              options.onProgress(progress, xhr);
+            }, false);
+          }
+        }
+
         xhr.open(method, url, async);
         if (options.responseType) {
           xhr.responseType = options.responseType;
