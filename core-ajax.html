@@ -32,7 +32,7 @@ element.
 @homepage github.io
 -->
 <link rel="import" href="core-xhr.html">
-<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials progress loading">
+<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials basicUser basicPassword progress loading">
 <script>
 
   Polymer('core-ajax', {
@@ -203,6 +203,24 @@ element.
      * @default false
      */
     withCredentials: false,
+
+    /**
+     * User name for basic authorization
+     *
+     * @attribute basicUser
+     * @type string
+     * @default null
+     */
+    basicUser: null,
+
+    /**
+     * Password for basic authorization
+     *
+     * @attribute basicPassword
+     * @type string
+     * @default null
+     */
+    basicPassword: null,
 
     /**
      * Additional properties to send to core-xhr.
@@ -389,6 +407,10 @@ element.
         args.responseType = this.handleAs;
       }
       args.withCredentials = this.withCredentials;
+      if (this.basicUser || this.basicPassword) {
+        args.headers['Authorization'] = 'Basic ' + btoa((this.basicUser || '') + ':' +
+          (this.basicPassword || ''));
+      }
       args.callback = this.receive.bind(this);
       args.url = this.url;
       args.method = this.method;
