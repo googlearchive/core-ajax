@@ -35,9 +35,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var headers = {
         "Content-Type": "text/json"
       };
-      var body = '{"content": "plentiful"}'
+      var body = '{"content": "plentiful"}';
       var requests = this.requests = [];
-      xhr.onCreate = function (xhr) {
+      xhr.onCreate = function(xhr) {
           requests.push(xhr);
           // Polymer inspects the xhr object for the precense of onprogress to determine
           // whether to attach an event listener.
@@ -50,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           total: total
         });
         return progress;
-      }
+      };
 
       // Fake a file download by sending multiple progress events.
       async.series([
