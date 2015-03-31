@@ -271,7 +271,7 @@ element.
         lengthComputable: progress.lengthComputable,
         loaded: progress.loaded,
         total: progress.total
-      }
+      };
       this.progress = progressProxy;
     },
 
@@ -376,11 +376,11 @@ element.
       var hasContentType = Object.keys(args.headers).some(function (header) {
         return header.toLowerCase() === 'content-type';
       });
-      // No Content-Type should be specified if sending `FormData`.  
+      // No Content-Type should be specified if sending `FormData`.
       // The UA must set the Content-Type w/ a calculated  multipart boundary ID.
       if (args.body instanceof FormData) {
         delete args.headers['Content-Type'];
-      } 
+      }
       else if (!hasContentType && this.contentType) {
         args.headers['Content-Type'] = this.contentType;
       }
@@ -408,7 +408,7 @@ element.
         } else {
           this.progress = {
             lengthComputable: false,
-          }
+          };
         }
       }
       return this.activeRequest;
