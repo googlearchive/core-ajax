@@ -30,6 +30,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <core-ajax auto url="/responds_to_get_with_json"></core-ajax>
     </template>
   </test-fixture>
+  <test-fixture id="GetEcho">
+    <template>
+      <core-ajax handleas="json" url="/echoes_request_url"></core-ajax>
+    </template>
+  </test-fixture>
   <test-fixture id="TrivialPost">
     <template>
       <core-ajax method="POST"
@@ -74,6 +79,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         server.restore();
       });
 
+      function respondToEchoRequest(request) {
+        request.respond(200, jsonResponseHeaders, JSON.stringify({
+          url: request.url
+        }));
+      }
+
       suite('when making simple GET requests for JSON', function () {
         test('has sane defaults that love you', function () {
           request = ajax.generateRequest();
@@ -115,17 +126,81 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       suite('when there are multiple requests', function () {
         var requests;
-
+        var echoRequest;
+        var promiseAllComplete;
         setup(function () {
+          echoRequest = fixture('GetEcho');
           requests = [];
 
           for (var i = 0; i < 3; ++i) {
-            requests.push(ajax.generateRequest());
+            echoRequest.params = {'order': i + 1};
+            requests.push(echoRequest.generateRequest());
           }
+          var allPromises = requests.map(function(r){return r.completes});
+          promiseAllComplete = Promise.all(allPromises);
         });
 
-        test('holds all requests in the `activeRequests` Array', function () {
-          expect(requests).to.deep.eql(ajax.activeRequests);
+        test('holds outstanding requests in the `activeRequests` Array',
+          function(done) {
+            expect(echoRequest.activeRequests).to.deep.eql(requests);
+            server.respond();
+            promiseAllComplete.then(function() {
+              setTimeout(function() {
+                try {
+                  expect(echoRequest.activeRequests).to.deep.eql([]);
+                  done();
+                } catch(e) {
+                  done(e);
+                }
+              }, 1);
+            });
+          }
+        );
+
+        test('avoids race conditions with last response', function(done) {
+          expect(echoRequest.lastResponse).to.be.equal(undefined);
+
+          // Resolving the oldest request doesn't update lastResponse.
+          respondToEchoRequest(server.requests[0]);
+          requests[0].completes.then(function() {
+            expect(echoRequest.lastResponse).to.be.equal(undefined);
+
+            // Resolving the most recent request does!
+            respondToEchoRequest(server.requests[2]);
+            return requests[2].completes;
+          }).then(function() {
+            expect(echoRequest.lastResponse).to.be.deep.eql(
+                {url: '/echoes_request_url?order=3'});
+
+            // Resolving an out of order stale request after does nothing!
+            respondToEchoRequest(server.requests[1]);
+            return requests[1].completes;
+          }).then(function() {
+            expect(echoRequest.lastResponse).to.be.deep.eql(
+                {url: '/echoes_request_url?order=3'});
+          }).then(done, done);
+        });
+
+        test('`loading` is true while the last one is loading', function(done) {
+          expect(echoRequest.loading).to.be.equal(true);
+
+          // Still loading when the oldest request resolves.
+          respondToEchoRequest(server.requests[0]);
+          requests[0].completes.then(function() {
+            expect(echoRequest.loading).to.be.equal(true);
+
+            // Finished loading after the newest one resolves though.
+            respondToEchoRequest(server.requests[2]);
+            return requests[2].completes;
+          }).then(function() {
+            expect(echoRequest.loading).to.be.eql(false);
+
+            // Resolving an out of order stale request after does nothing.
+            respondToEchoRequest(server.requests[1]);
+            return requests[1].completes;
+          }).then(function() {
+            expect(echoRequest.loading).to.be.eql(false);
+          }).then(done, done);
         });
       });
 

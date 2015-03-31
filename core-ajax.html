@@ -231,8 +231,7 @@ element.
       },
 
       /**
-       * Will be set to true if there is at least one in-flight request
-       * associated with this core-ajax element.
+       * True while `lastRequest` is in progress.
        *
        * @attribute loading
        * @type boolean
@@ -258,10 +257,11 @@ element.
       },
 
       /**
-       * Will be set to the most recent response received by a request
-       * that originated from this core-ajax element. The type of the response
-       * is determined by the value of `handleas` at the time that the request
-       * was generated.
+       * Will be set to the successful response received for `lastRequest`, if
+       * any. The type of the response is determined by the value of `handleas`
+       * at the time that the request was generated. While `lastRequest` hasn't
+       * completed, or if it received an error, then this attribute will be set
+       * to `undefined`.
        *
        * @attribute lastresponse
        * @type *
@@ -274,8 +274,9 @@ element.
       },
 
       /**
-       * Will be set to the most recent error that resulted from a request
-       * that originated from this core-ajax element.
+       * Will be set to the error received for `lastRequest`, if any. While
+       * `lastRequest` hasn't completed, or if it resolved successfully, then
+       * this attribute will be set to `undefined`.
        *
        * @attribute lasterror
        * @type Error
@@ -308,14 +309,6 @@ element.
     observers: {
       'url method headers contentType body sync handleAs withCredentials':
         'requestOptionsChanged'
-    },
-
-    configure: function() {
-      return {
-        _boundHandleResponse: this.handleResponse.bind(this),
-        _boundHandleError: this.handleError.bind(this),
-        _boundDiscardRequest: this.discardRequest.bind(this)
-      };
     },
 
     get queryString () {
@@ -386,17 +379,21 @@ element.
 
       this.activeRequests.push(request);
 
-      request.completes.then(
-        this._boundHandleResponse
-      ).catch(
-        this._boundHandleError
-      ).then(
-        this._boundDiscardRequest
-      );
+      var self = this;
+      request.completes.then(function(response) {
+        self.handleResponse(request, response);
+      }).catch(function(error) {
+        self.handleError(request, error);
+      }).then(function() {
+        self.discardRequest(request);
+      });
 
       request.send(requestOptions);
 
       this._setLastRequest(request);
+      this._setLastError(undefined);
+      this._setLastResponse(undefined);
+      this._setLoading(true);
 
       this.fire('request', {
         xhr: request.xhr,
@@ -406,24 +403,31 @@ element.
       return request;
     },
 
-    handleResponse: function(response) {
-      this._setLastResponse(response);
+    handleResponse: function(request, response) {
+      if (request === this.lastRequest) {
+        this._setLastError(undefined);
+        this._setLastResponse(response);
+        this._setLoading(false);
+      }
       this.fire('response', response);
     },
 
-    handleError: function(error) {
+    handleError: function(request, error) {
       if (this.verbose) {
         console.error(error);
       }
-
-      this._setLastError(error);
+      if (request === this.lastRequest) {
+        this._setLastError(error);
+        this._setLastResponse(undefined);
+        this._setLoading(false);
+      }
       this.fire('error', error);
     },
 
     discardRequest: function(request) {
       var requestIndex = this.activeRequests.indexOf(request);
 
-      if (requestIndex > 0) {
+      if (requestIndex >= 0) {
         this.activeRequests.splice(requestIndex, 1);
       }
     }
