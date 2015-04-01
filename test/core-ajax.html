@@ -54,10 +54,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       function promiseAll(promises) {
         promises = promises.slice(); // defensive copy
         return new Promise(function(resolve, reject) {
-          var i = 0;
+          var successes = 0;
           var onSuccess = function() {
-            i++;
-            if (i == promises.length) {
+            successes++;
+            if (successes >= promises.length) {
               resolve();
             };
           };
