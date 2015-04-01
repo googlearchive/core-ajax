@@ -50,6 +50,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var request;
       var server;
 
+      // A stand-in for Promise.all, as promise-polyfill doesn't polyfill it.
+      function promiseAll(promises) {
+        promises = promises.slice(); // defensive copy
+        return new Promise(function(resolve, reject) {
+          var i = 0;
+          var onSuccess = function() {
+            i++;
+            if (i == promises.length) {
+              resolve();
+            };
+          };
+          var onFailure = function() {
+            reject();
+          };
+          for (var i = 0; i < promises.length; i++) {
+            promises[i].then(onSuccess, onFailure);
+          }
+        });
+      }
+
       setup(function () {
         server = sinon.fakeServer.create();
         server.respondWith(
@@ -137,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             requests.push(echoRequest.generateRequest());
           }
           var allPromises = requests.map(function(r){return r.completes});
-          promiseAllComplete = Promise.all(allPromises);
+          promiseAllComplete = promiseAll(allPromises);
         });
 
         test('holds outstanding requests in the `activeRequests` Array',
