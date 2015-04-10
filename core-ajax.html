@@ -348,7 +348,7 @@ element.
     },
 
     get requestHeaders() {
-      var headers = Object.create(this.headers || {});
+      var headers = this.headers || {};
 
       if (!('content-type' in headers)) {
         headers['content-type'] = this.contentType;
