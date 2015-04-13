@@ -3,7 +3,7 @@
   "private": true,
   "main": [
     "core-ajax.html"
-  ]
+  ],
   "dependencies": {
     "polymer": "Polymer/polymer#0.8-preview",
     "promise-polyfill": "polymerlabs/promise-polyfill#master"
