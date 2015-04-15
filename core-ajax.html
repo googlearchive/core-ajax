@@ -310,12 +310,10 @@ element.
         'requestOptionsChanged'
     },
 
-    configure: function() {
-      return {
-        _boundHandleResponse: this.handleResponse.bind(this),
-        _boundHandleError: this.handleError.bind(this),
-        _boundDiscardRequest: this.discardRequest.bind(this)
-      };
+    created: function() {
+      this._boundHandleResponse = this.handleResponse.bind(this);
+      this._boundHandleError = this.handleError.bind(this);
+      this._boundDiscardRequest = this.discardRequest.bind(this);
     },
 
     get queryString () {
@@ -370,7 +368,7 @@ element.
     },
 
     requestOptionsChanged: function() {
-      if (this.auto) {
+      if (this.attributes.auto) {
         this.generateRequest();
       }
     },
