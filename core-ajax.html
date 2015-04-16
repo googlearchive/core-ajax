@@ -16,7 +16,8 @@ The `core-ajax` element exposes network request functionality.
         url="http://gdata.youtube.com/feeds/api/videos/"
         params='{"alt":"json", "q":"chrome"}'
         handleas="json"
-        on-response="{{handleResponse}}"></core-ajax>
+        on-response="handleResponse"
+    ></core-ajax>
 
 With `auto` set to `true`, the element performs a request whenever
 its `url`, `params` or `body` properties are changed. Automatically generated
