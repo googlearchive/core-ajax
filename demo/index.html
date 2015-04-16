@@ -13,60 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <title>core-ajax</title>
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../core-ajax.html">
-  <link rel="import" href="../../core-image/core-image.html">
-  <link rel="import" href="../../layout/layout.html">
-  <link rel="import" href="../../font-roboto/roboto.html">
+  <link rel="import" href="video-feed.html">
 </head>
 <body>
-
-  <dom-module id="video-feed">
-    <style>
-      :host {
-        font-family: RobotoDraft, sans-serif;
-      }
-
-      core-image {
-        background-color: lightgray;
-        margin: 1em;
-      }
-    </style>
-
-    <template>
-      <core-ajax auto url="//gdata.youtube.com/feeds/api/videos/"
-          params='{"alt":"json", "q":"polymer"}'
-          handle-as="json" last-response="{{ajaxResponse}}"></core-ajax>
-
-      <h1>Video Feed</h1>
-      <section class="flex layout horizontal wrap">
-        <template is="x-repeat" items="[[ajaxResponse.feed.entry]]">
-          <a href="[[item._link]]" target="_blank">
-            <core-image src="[[item._imageLink]]" width="256" height="256" sizing="cover" preload fade></core-image>
-          </a>
-        </template>
-      </section>
-    </template>
-  </dom-module>
-
-  <script>
-    Polymer({
-      is: "video-feed",
-      properties: {
-        ajaxResponse: {
-          type: Object,
-          observer: "handleResponse"
-        }
-      },
-      handleResponse: function(response) {
-        var entry = response.feed.entry;
-        for (var i = 0; i < entry.length; i++) {
-          var item = entry[i];
-          item._link = item.link[0].href;
-          item._imageLink = item.media$group.media$thumbnail[0].url;
-        }
-      }
-    });
-  </script>
 
   <video-feed></video-feed>
 
