@@ -305,17 +305,14 @@ element.
       }
     },
 
-    observers: {
-      'url method headers contentType body sync handleAs withCredentials':
-        'requestOptionsChanged'
-    },
+    observers: [
+      'requestOptionsChanged(url, method, headers, contentType, body, sync, handleAs, withCredentials, auto)'
+    ],
 
-    configure: function() {
-      return {
-        _boundHandleResponse: this.handleResponse.bind(this),
-        _boundHandleError: this.handleError.bind(this),
-        _boundDiscardRequest: this.discardRequest.bind(this)
-      };
+    created: function() {
+      this._boundHandleResponse = this.handleResponse.bind(this);
+      this._boundHandleError = this.handleError.bind(this);
+      this._boundDiscardRequest = this.discardRequest.bind(this);
     },
 
     get queryString () {
