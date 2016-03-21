@@ -392,6 +392,7 @@ element.
       args.callback = this.receive.bind(this);
       args.url = this.url;
       args.method = this.method;
+      args.onProgress = this.processProgress.bind(this);
 
       this.response = this.error = this.progress = null;
       this.activeRequest = args.url && this.xhr.request(args);
@@ -399,13 +400,7 @@ element.
         this.loading = true;
         var activeRequest = this.activeRequest;
         // IE < 10 doesn't support progress events.
-        if ('onprogress' in activeRequest) {
-          this.activeRequest.addEventListener(
-              'progress',
-              function(progress) {
-                this.processProgress(progress, activeRequest);
-              }.bind(this), false);
-        } else {
+        if (!('onprogress' in activeRequest)) {
           this.progress = {
             lengthComputable: false,
           }
