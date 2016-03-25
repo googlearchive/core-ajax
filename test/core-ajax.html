@@ -280,6 +280,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       });
     });
+    suite('params', function() {
+      suiteSetup(function () {
+        ajax.url = "http://example.com/";
+      });
+      test('should write single level object param to query string correctly.', function (done) {
+        async.series([
+          function (cb) {
+            ajax.params = '{"s": "bar", "t":"foo"}';
+            ajax.method = 'POST';
+            ajax.body = '';
+            cb();
+          },
+          animationFrameFlush,
+          function (cb) {
+            assert.equal(requests[0].requestBody, 's=bar&t=foo');
+            cb();
+          }
+        ], done);
+      });
+      test('should write 2 level object param to query string correctly.', function (done) {
+        async.series([
+          function (cb) {
+            ajax.params = '{"s": { "t": "bar", "u": "foo"}}';
+            ajax.method = 'POST';
+            ajax.body = '';
+            cb();
+          },
+          animationFrameFlush,
+          function (cb) {
+            assert.equal(requests[0].requestBody, '%5Bs%5D%5Bt%5D=bar&%5Bs%5D%5Bu%5D=foo');
+            cb();
+          }
+        ], done);
+      });
+      test('should write multi level object param to query string correctly.', function (done) {
+        async.series([
+          function (cb) {
+            ajax.params = '{"s": { "t": {"v": "bar" }, "u": "foo"}}';
+            ajax.method = 'POST';
+            ajax.body = '';
+            cb();
+          },
+          animationFrameFlush,
+          function (cb) {
+            assert.equal(requests[0].requestBody, '%5Bs%5D%5Bt%5D%5Bv%5D=bar&%5Bs%5D%5Bu%5D=foo');
+            cb();
+          }
+        ], done);
+      });
+    });
   });
   </script>
 
