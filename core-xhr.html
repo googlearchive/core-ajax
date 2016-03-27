@@ -58,7 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //
         xhr.open(method, url, async);
         if (options.responseType) {
-          xhr.responseType = options.responseType;
+          xhr.responseType = xhr._responseType = options.responseType;
         }
         if (options.withCredentials) {
           xhr.withCredentials = true;
@@ -71,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         return xhr;
       },
-    
+
       toQueryString: function(params) {
         var r = [];
         for (var n in params) {
@@ -85,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       isBodyMethod: function(method) {
         return this.bodyMethods[(method || '').toUpperCase()];
       },
-      
+
       bodyMethods: {
         POST: 1,
         PUT: 1,
@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       makeReadyStateHandler: function(xhr, callback) {
         xhr.onreadystatechange = function() {
           if (xhr.readyState == 4) {
-            callback && callback.call(null, xhr.response, xhr);
+            callback && callback.call(null, !xhr.responseType && xhr._responseType == 'json' ? JSON.parse(xhr.response) : xhr.response, xhr);
           }
         };
       },
@@ -112,5 +112,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
   </script>
-  
+
 </polymer-element>
