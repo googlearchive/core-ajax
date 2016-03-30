@@ -81,6 +81,8 @@ element.
      *
      *    `document`: uses `XHR.response`.
      *
+     *    `auto`: tries to determine data based on response `Content-Type` header.
+     *
      * @attribute handleAs
      * @type string
      * @default 'text'
@@ -316,6 +318,34 @@ element.
 
     arraybufferHandler: function(xhr) {
       return xhr.response;
+    },
+
+    autoHandler: function(xhr) {
+      var value = String(xhr.getResponseHeader("Content-Type")).toLowerCase();
+      if (value == null) {
+        return this.textHandler(xhr);
+      }
+      var delim = value.indexOf(";");
+      if (delim > -1) {
+        value = value.slice(0, delim);
+      }
+      var types = value.split('/');
+      if (types.length != 2) {
+        return this.textHandler(xhr);
+      }
+      switch (types[1]) {
+        case 'json':
+          return this.jsonHandler(xhr);
+        case 'xml':
+          return this.xmlHandler(xhr);
+        case 'octet-stream':
+          return this.blobHandler(xhr);
+        default:
+          if (types[0] == 'text') {
+            return this.textHandler(xhr);
+          }
+      }
+      return this.documentHandler(xhr);
     },
 
     urlChanged: function() {
